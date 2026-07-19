@@ -47,6 +47,7 @@ worker/
   src/index.js     router + API + cron alertów (Cloudflare Worker)
   src/nfz.js       adapter API NFZ ITL v1.4 (backoff na 429!)
   src/mapping.js   synonimy + fuzzy + kody województw (01-16 = OW NFZ)
+  src/gsl.js       katalog kategorii GSL + routing potocznych intencji do oficjalnych URL-i
   data/benefits.json  snapshot słownika świadczeń (562 pozycje, zebrany 19.07.2026)
   static/index.html   źródło frontendu Kolejkomatu
   schema.sql       D1: alerty, snapshoty, usage limity, historyczna waitlista
@@ -60,6 +61,15 @@ Publiczne, bez klucza, JSON. Endpointy: `/queues` (kolejki), `/benefits` (słown
 
 Źródło routingów "Pomoc teraz": **GSL NFZ "Gdzie się leczyć"** - `https://gsl.nfz.gov.pl/GSL/`.
 Etap 1 używa tylko linków do oficjalnych kategorii GSL. Nie scrapujemy wyników GSL i nie wywołujemy ich endpointów po stronie serwera.
+
+Publiczne endpointy Kolejkomatu:
+
+- `GET /api/sugestie?q=ortopeda` - potoczna nazwa -> świadczenia NFZ.
+- `GET /api/kolejki?benefit=...&woj=07&pilny=0` - kolejki NFZ dla świadczenia i województwa.
+- `GET /api/wojewodztwa` - kody oddziałów wojewódzkich NFZ.
+- `GET /api/gsl/kategorie` - katalog kategorii GSL.
+- `GET /api/gsl/route?q=boli%20ząb%20w%20nocy` - potoczny opis -> pasujące kategorie GSL.
+- `GET /api/gsl/link?kategoria=sor` - pojedyncza kategoria GSL z oficjalnym URL.
 
 ## Fakty zweryfikowane u źródła (19.07.2026)
 

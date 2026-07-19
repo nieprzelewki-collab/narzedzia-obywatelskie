@@ -756,6 +756,148 @@ var WOJEWODZTWA = {
   "16": "zachodniopomorskie"
 };
 
+// ../worker/src/gsl.js
+var GSL_ROOT = "https://gsl.nfz.gov.pl/GSL/GSL";
+var CATEGORY_DEFS = [
+  {
+    id: "sor",
+    nr: "GSL 01",
+    title: "Szpitalny Oddzia\u0142 Ratunkowy",
+    shortTitle: "SOR",
+    path: "/SOR",
+    searchPath: "/SORSearch",
+    group: "pomoc-dorazna",
+    keywords: ["sor", "ratunkowy", "wypadek", "uraz", "nagly", "nag\u0142a", "szpital", "karetka", "krwawienie"],
+    description: "Gdy sprawa jest nag\u0142a i wymaga pomocy szpitalnej."
+  },
+  {
+    id: "pomoc-nocna",
+    nr: "GSL 02",
+    title: "Nocna i \u015Bwi\u0105teczna pomoc POZ",
+    shortTitle: "Nocna pomoc",
+    path: "/PomocNocna",
+    searchPath: "/PomocNocnaSearch",
+    group: "pomoc-dorazna",
+    keywords: ["noc", "nocna", "\u015Bwi\u0119to", "swieto", "weekend", "wieczor", "wiecz\xF3r", "poz zamkniety", "goraczka"],
+    description: "Wieczorem, w nocy, w weekend albo \u015Bwi\u0119to, gdy POZ nie pracuje."
+  },
+  {
+    id: "izba-przyjec",
+    nr: "GSL 03",
+    title: "Izby przyj\u0119\u0107",
+    shortTitle: "Izba przyj\u0119\u0107",
+    path: "/IzbaPrzyjec",
+    searchPath: "/IzbaPrzyjecSearch",
+    group: "pomoc-dorazna",
+    keywords: ["izba", "przyjec", "przyj\u0119\u0107", "szpital", "przyjecie", "przyj\u0119cie"],
+    description: "Miejsca przy szpitalach udzielaj\u0105ce pomocy w trybie przyj\u0119cia."
+  },
+  {
+    id: "stomatologia-dorazna",
+    nr: "GSL 04",
+    title: "Pomoc stomatologiczna dora\u017Ana",
+    shortTitle: "Dentysta dora\u017Anie",
+    path: "/LeczenieStomatologiczneDorazne",
+    searchPath: "/LeczenieStomatologiczneDorazneSearch",
+    group: "pomoc-dorazna",
+    keywords: ["z\u0105b", "zab", "z\u0119by", "zeby", "dentysta", "stomatolog", "stomatologiczna", "bol zeba", "b\xF3l z\u0119ba"],
+    description: "Gdy chodzi o nag\u0142y problem stomatologiczny finansowany przez NFZ."
+  },
+  {
+    id: "poz",
+    nr: "GSL 05",
+    title: "Lekarz, piel\u0119gniarka i po\u0142o\u017Cna POZ",
+    shortTitle: "POZ",
+    path: "/POZ",
+    searchPath: "/POZSearch",
+    group: "opieka-podstawowa",
+    keywords: ["poz", "lekarz rodzinny", "rodzinny", "internista", "piel\u0119gniarka", "pielegniarka", "po\u0142o\u017Cna", "polozna"],
+    description: "Podstawowa opieka zdrowotna: gabinet lekarza POZ, piel\u0119gniarki lub po\u0142o\u017Cnej."
+  },
+  {
+    id: "programy-profilaktyczne",
+    nr: "GSL 06",
+    title: "Programy profilaktyczne",
+    shortTitle: "Profilaktyka",
+    path: "/ProgramyProfilaktyczne",
+    searchPath: "/ProgramyProfilaktyczneSearch",
+    group: "profilaktyka",
+    keywords: ["profilaktyka", "profilaktyczne", "badania przesiewowe", "mammografia", "cytologia", "kolonoskopia"],
+    description: "Badania i programy profilaktyczne realizowane w ramach NFZ."
+  },
+  {
+    id: "apteki",
+    nr: "GSL 07",
+    title: "Apteki",
+    shortTitle: "Apteki",
+    path: "/Apteki",
+    searchPath: "/AptekiSearch",
+    group: "apteki",
+    keywords: ["apteka", "apteki", "lek", "leki", "recepta", "dyzur", "dy\u017Cur"],
+    description: "Apteki widoczne w oficjalnej wyszukiwarce NFZ."
+  },
+  {
+    id: "punkty-zaopatrzenia",
+    nr: "GSL 08",
+    title: "Punkty zaopatrzenia",
+    shortTitle: "Zaopatrzenie",
+    path: "/PunktyZaopatrzenia",
+    searchPath: "/PunktyZaopatrzeniaSearch",
+    group: "zaopatrzenie",
+    keywords: ["zaopatrzenie", "orteza", "w\xF3zek", "wozek", "sprzet", "sprz\u0119t", "aparat s\u0142uchowy", "aparat sluchowy"],
+    description: "Punkty realizuj\u0105ce zaopatrzenie w wyroby medyczne."
+  }
+];
+var CATEGORIES = CATEGORY_DEFS.map((c) => ({
+  ...c,
+  url: GSL_ROOT + c.path,
+  searchUrl: GSL_ROOT + c.searchPath
+}));
+function norm2(value) {
+  return String(value ?? "").toLowerCase().replaceAll("\u0105", "a").replaceAll("\u0107", "c").replaceAll("\u0119", "e").replaceAll("\u0142", "l").replaceAll("\u0144", "n").replaceAll("\xF3", "o").replaceAll("\u015B", "s").replaceAll("\u017A", "z").replaceAll("\u017C", "z").replace(/[^\p{L}\p{N}\s-]/gu, " ").replace(/\s+/g, " ").trim();
+}
+function gslCategories() {
+  return CATEGORIES.map(({ keywords, ...publicCategory }) => publicCategory);
+}
+function gslCategory(id) {
+  return gslCategories().find((c) => c.id === id) ?? null;
+}
+function gslRoute(query, limit = 3) {
+  const q = norm2(query);
+  if (q.length < 2) {
+    return {
+      query,
+      matches: gslCategories().slice(0, limit),
+      note: "Wpisz problem po ludzku albo wybierz kategori\u0119 z listy.",
+      source: "NFZ GSL"
+    };
+  }
+  const scored = CATEGORIES.map((category) => {
+    const score = category.keywords.reduce((sum, keyword) => {
+      const k = norm2(keyword);
+      if (!k) return sum;
+      if (q === k) return sum + 6;
+      if (q.includes(k)) return sum + 4;
+      if (k.includes(q)) return sum + 2;
+      return sum;
+    }, 0);
+    return { category, score };
+  }).filter((x) => x.score > 0);
+  const matches = (scored.length ? scored : CATEGORIES.map((category) => ({ category, score: 0 }))).sort((a, b) => b.score - a.score || a.category.nr.localeCompare(b.category.nr)).slice(0, limit).map(({ category }) => {
+    const { keywords, ...publicCategory } = category;
+    return publicCategory;
+  });
+  return {
+    query,
+    matches,
+    note: scored.length ? null : "Nie mam pewnego dopasowania. Pokazuj\u0119 najcz\u0119\u015Bciej u\u017Cywane kategorie GSL.",
+    source: "NFZ GSL"
+  };
+}
+function gslLink(id) {
+  return gslCategory(id);
+}
+
 // ../worker/src/index.js
 var JSON_HEADERS = { "Content-Type": "application/json; charset=utf-8" };
 var index_default = {
@@ -770,6 +912,9 @@ var index_default = {
       if (url.pathname === "/api/alert" && request.method === "POST") return apiAlertDodaj(request, env);
       if (url.pathname === "/api/alert/usun") return apiAlertUsun(url, env);
       if (url.pathname === "/api/wojewodztwa") return new Response(JSON.stringify(WOJEWODZTWA), { headers: JSON_HEADERS });
+      if (url.pathname === "/api/gsl/kategorie") return apiGslKategorie();
+      if (url.pathname === "/api/gsl/route") return apiGslRoute(url);
+      if (url.pathname === "/api/gsl/link") return apiGslLink(url);
     } catch (e) {
       return new Response(JSON.stringify({ error: String(e.message || e) }), { status: 502, headers: JSON_HEADERS });
     }
@@ -784,6 +929,21 @@ var index_default = {
 function apiSugestie(url) {
   const q = url.searchParams.get("q") ?? "";
   return new Response(JSON.stringify(suggest(q)), { headers: JSON_HEADERS });
+}
+function apiGslKategorie() {
+  return new Response(JSON.stringify({ source: "NFZ GSL", categories: gslCategories() }), { headers: JSON_HEADERS });
+}
+function apiGslRoute(url) {
+  const q = url.searchParams.get("q") ?? "";
+  return new Response(JSON.stringify(gslRoute(q)), { headers: JSON_HEADERS });
+}
+function apiGslLink(url) {
+  const id = url.searchParams.get("kategoria") ?? "";
+  const category = gslLink(id);
+  if (!category) {
+    return new Response(JSON.stringify({ error: "Nieznana kategoria GSL" }), { status: 404, headers: JSON_HEADERS });
+  }
+  return new Response(JSON.stringify({ source: "NFZ GSL", category }), { headers: JSON_HEADERS });
 }
 async function apiKolejki(url, env) {
   const benefit = url.searchParams.get("benefit");

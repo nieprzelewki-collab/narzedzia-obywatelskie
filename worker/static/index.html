@@ -144,9 +144,19 @@
   .gsl-card h3 { font-size:1.05rem; line-height:1.35; letter-spacing:.02em; margin-bottom:10px; }
   .gsl-card p { font-size:.82rem; line-height:1.55; color:#c3c9ce; }
   .gsl-card .go { margin-top:auto; padding-top:16px; font-size:.75rem; color:var(--acid); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .gsl-router { display:grid; grid-template-columns:1fr auto; gap:10px; margin:0 0 18px; padding:14px; border:1px solid #30363b; background:#0d0f10; }
+  .gsl-router label { grid-column:1/-1; font-size:.74rem; color:#8f989f; text-transform:uppercase; letter-spacing:.08em; font-weight:700; }
+  .gsl-router input { width:100%; min-width:0; background:#d7e1e9; color:#111; border:0; padding:14px; font-weight:700; font-size:.95rem; font-family:inherit; outline:none; }
+  .gsl-router button { border:0; background:var(--acid); color:#111; padding:0 18px; font-weight:900; text-transform:uppercase; letter-spacing:.05em; cursor:pointer; }
+  .gsl-router button:hover { filter:brightness(1.08); }
+  .gsl-route-output { grid-column:1/-1; display:grid; grid-template-columns:repeat(3,1fr); gap:10px; min-height:0; }
+  .gsl-match { display:flex; flex-direction:column; gap:8px; min-height:116px; padding:12px; border:1px solid #30363b; background:#15181a; color:var(--panel-ink); text-decoration:none; }
+  .gsl-match b { font-size:.86rem; line-height:1.35; }
+  .gsl-match span { font-size:.72rem; color:var(--acid); font-weight:800; letter-spacing:.06em; }
+  .gsl-match p { margin:0; font-size:.78rem; line-height:1.45; color:#aeb6bc; }
   .gsl-note { margin-top:18px; font-size:.78rem; line-height:1.65; color:#8f989f; }
-  @media (max-width:900px){ .gsl-head { grid-template-columns:1fr; } .gsl-grid { grid-template-columns:repeat(2,1fr); } }
-  @media (max-width:560px){ .gsl-grid { grid-template-columns:1fr; } .gsl-card { min-height:0; } }
+  @media (max-width:900px){ .gsl-head { grid-template-columns:1fr; } .gsl-grid { grid-template-columns:repeat(2,1fr); } .gsl-route-output { grid-template-columns:1fr; } }
+  @media (max-width:560px){ .gsl-grid { grid-template-columns:1fr; } .gsl-card { min-height:0; } .gsl-router { grid-template-columns:1fr; } .gsl-router button { min-height:46px; } }
 
   footer { background:var(--panel); color:#aeb6bc; font-size:.78rem; line-height:1.7; padding:40px 4vw 60px; letter-spacing:.02em; }
   footer .fmax { max-width:1100px; margin:0 auto; }
@@ -280,6 +290,12 @@
       <div class="naglowek" style="margin-bottom:0"><span class="nr">/02</span><h2>Pomoc teraz</h2></div>
       <p>Jeśli nie szukasz zwykłej kolejki, tylko miejsca pomocy doraźnej albo podstawowej opieki, przejdź do właściwej kategorii oficjalnej wyszukiwarki NFZ "Gdzie się leczyć". Kolejkomat nie pobiera tu danych za Ciebie - kieruje do źródła.</p>
     </div>
+    <form class="gsl-router reveal" id="gslform">
+      <label for="gslq">Opisz problem - dopasujemy kategorię GSL</label>
+      <input id="gslq" autocomplete="off" placeholder="np. boli ząb w nocy, SOR, lekarz rodzinny, profilaktyka">
+      <button type="submit">Dopasuj</button>
+      <div class="gsl-route-output" id="gslwynik" aria-live="polite"></div>
+    </form>
     <div class="gsl-grid reveal">
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/SOR" target="_blank" rel="noopener">
         <span class="num">GSL 01</span>
@@ -418,6 +434,23 @@ $("f").addEventListener("submit", async (e) => {
     rysuj();
     $("alertbox").style.display = "block";
   } catch { $("status").textContent = "> nie udało się pobrać danych z NFZ - spróbuj za chwilę (limit zapytań)."; }
+});
+
+$("gslform").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const q = $("gslq").value.trim();
+  $("gslwynik").innerHTML = '<div class="gsl-match"><span>NFZ GSL</span><b>Szukam kategorii...</b><p>Zapytanie nie jest zapisywane.</p></div>';
+  try {
+    const d = await (await fetch("/api/gsl/route?q=" + encodeURIComponent(q))).json();
+    $("gslwynik").innerHTML = d.matches.map((m) => `
+      <a class="gsl-match" href="${m.url}" target="_blank" rel="noopener">
+        <span>${m.nr}</span>
+        <b>${m.title}</b>
+        <p>${m.description}</p>
+      </a>`).join("");
+  } catch {
+    $("gslwynik").innerHTML = '<div class="gsl-match"><span>NFZ GSL</span><b>Nie udało się dopasować.</b><p>Wybierz kategorię z listy poniżej.</p></div>';
+  }
 });
 
 $("geo").addEventListener("click", () => {

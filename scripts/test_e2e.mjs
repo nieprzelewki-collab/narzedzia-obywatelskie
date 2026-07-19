@@ -4,6 +4,7 @@ import fs from "node:fs";
 import { suggest, WOJEWODZTWA } from "../worker/src/mapping.js";
 import { queues } from "../worker/src/nfz.js";
 import { parseWaitDays } from "../worker/src/index.js";
+import { gslCategories, gslRoute } from "../worker/src/gsl.js";
 
 let fails = 0;
 const check = (name, cond, extra = "") => {
@@ -53,9 +54,18 @@ console.log(`   Najkrótszy termin: ${r?.waitLabel} | ${r?.provider} | ${r?.loca
 
 check("słownik województw ma 16 pozycji", Object.keys(WOJEWODZTWA).length === 16);
 
-// 4. UI: moduł GSL "Pomoc teraz" musi zostać w Kolejkomacie.
+// 4. GSL: katalog i routing intencji do oficjalnej wyszukiwarki "Gdzie się leczyć".
+const gsl = gslCategories();
+check("GSL ma katalog kategorii", gsl.length >= 8 && gsl.every((c) => c.url?.startsWith("https://gsl.nfz.gov.pl/GSL/GSL/")));
+check("GSL route: SOR", gslRoute("SOR").matches[0]?.id === "sor");
+check("GSL route: boli ząb w nocy", gslRoute("boli ząb w nocy").matches.some((m) => m.id === "stomatologia-dorazna"));
+check("GSL route: lekarz rodzinny", gslRoute("lekarz rodzinny").matches[0]?.id === "poz");
+check("GSL route: profilaktyka", gslRoute("profilaktyka").matches[0]?.id === "programy-profilaktyczne");
+
+// 5. UI: moduł GSL "Pomoc teraz" musi zostać w Kolejkomacie.
 const html = fs.readFileSync("worker/static/index.html", "utf8");
 check("UI ma sekcję Pomoc teraz", html.includes('id="pomoc-teraz"') && html.includes("Pomoc teraz"));
+check("UI ma router GSL API", html.includes('id="gslform"') && html.includes("/api/gsl/route"));
 check("UI linkuje SOR GSL", html.includes("https://gsl.nfz.gov.pl/GSL/GSL/SOR"));
 check("UI linkuje nocną pomoc GSL", html.includes("https://gsl.nfz.gov.pl/GSL/GSL/PomocNocna"));
 check("UI linkuje profilaktykę GSL", html.includes("https://gsl.nfz.gov.pl/GSL/GSL/ProgramyProfilaktyczne"));

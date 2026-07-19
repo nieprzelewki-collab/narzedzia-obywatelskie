@@ -3,6 +3,7 @@
 // dane kolejek zawsze z dopiskiem "stan wg NFZ, potwierdź telefonicznie".
 import { queues } from "./nfz.js";
 import { suggest, WOJEWODZTWA } from "./mapping.js";
+import { gslCategories, gslLink, gslRoute } from "./gsl.js";
 
 const JSON_HEADERS = { "Content-Type": "application/json; charset=utf-8" };
 
@@ -20,6 +21,9 @@ export default {
       if (url.pathname === "/api/alert" && request.method === "POST") return apiAlertDodaj(request, env);
       if (url.pathname === "/api/alert/usun") return apiAlertUsun(url, env);
       if (url.pathname === "/api/wojewodztwa") return new Response(JSON.stringify(WOJEWODZTWA), { headers: JSON_HEADERS });
+      if (url.pathname === "/api/gsl/kategorie") return apiGslKategorie();
+      if (url.pathname === "/api/gsl/route") return apiGslRoute(url);
+      if (url.pathname === "/api/gsl/link") return apiGslLink(url);
     } catch (e) {
       return new Response(JSON.stringify({ error: String(e.message || e) }), { status: 502, headers: JSON_HEADERS });
     }
@@ -36,6 +40,24 @@ export default {
 function apiSugestie(url) {
   const q = url.searchParams.get("q") ?? "";
   return new Response(JSON.stringify(suggest(q)), { headers: JSON_HEADERS });
+}
+
+function apiGslKategorie() {
+  return new Response(JSON.stringify({ source: "NFZ GSL", categories: gslCategories() }), { headers: JSON_HEADERS });
+}
+
+function apiGslRoute(url) {
+  const q = url.searchParams.get("q") ?? "";
+  return new Response(JSON.stringify(gslRoute(q)), { headers: JSON_HEADERS });
+}
+
+function apiGslLink(url) {
+  const id = url.searchParams.get("kategoria") ?? "";
+  const category = gslLink(id);
+  if (!category) {
+    return new Response(JSON.stringify({ error: "Nieznana kategoria GSL" }), { status: 404, headers: JSON_HEADERS });
+  }
+  return new Response(JSON.stringify({ source: "NFZ GSL", category }), { headers: JSON_HEADERS });
 }
 
 async function apiKolejki(url, env) {

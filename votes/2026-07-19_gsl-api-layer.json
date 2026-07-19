@@ -1,0 +1,44 @@
+{
+  "proposal": "proposals/2026-07-19_gsl-api-layer.md",
+  "status": "ACCEPTED_FOR_DEV",
+  "votes": [
+    {
+      "role": "product",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Warstwa API pozwala rozwijać Narzędzia Obywatelskie poza samym UI."
+    },
+    {
+      "role": "cto",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Endpointy są lokalne, testowalne i nie zależą od prywatnych mechanizmów GSL."
+    },
+    {
+      "role": "privacy",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Zapytania nie są zapisywane ani wysyłane do modeli AI."
+    },
+    {
+      "role": "security",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Stała allow-list oficjalnych URL-i ogranicza ryzyko open redirect i nadużyć."
+    },
+    {
+      "role": "ux",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Użytkownik może wpisać potoczny opis i dostać jasny wybór kategorii."
+    },
+    {
+      "role": "cost",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Brak AI, brak bazy i brak zewnętrznych requestów po stronie runtime."
+    }
+  ],
+  "final_decision": "ACCEPTED_FOR_DEV",
+  "owner_prod_approval_required": true
+}
