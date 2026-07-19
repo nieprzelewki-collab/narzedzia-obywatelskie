@@ -7,6 +7,7 @@
 - Dodany walidator `scripts/governance_check.mjs`: sprawdza wymagane sekcje, komplet ról, veto, zakaz auto-prod i typowe wzorce sekretów.
 - Dodany CLI `np-civic` (`scripts/np_civic.mjs`) z komendami `status`, `update-check`, `proposal`, `vote`, `validate` oraz opcjonalny terminal hook `scripts/np_civic_hook.sh` w trybie notify-only.
 - Dodane przygotowanie pod publiczne repo: `package.json`, `VERSION`, `.np-civic.json`, GitHub Actions CI i template Pull Request.
+- Dodane mirrory instrukcji agentów: `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, `QWEN.md`; źródło prawdy pozostaje w `AGENTS.md`.
 - Dodany `.gitignore` blokujący lokalne env, klucze, credentials, `.wrangler/`, `node_modules/` i sourcemapy z `dist/`.
 
 ## [2026-07-19] Redesign parasola w stylu protocol board

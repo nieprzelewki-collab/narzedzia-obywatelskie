@@ -88,7 +88,8 @@ Mechanizm jest celowo defensywny:
 
 Pliki procesu:
 
-- `AGENTS.md` - wspólna instrukcja dla Claude, Codex, Qwen, Gemini i innych agentów,
+- `AGENTS.md` - źródło prawdy dla instrukcji agentów,
+- `CLAUDE.md`, `CODEX.md`, `GEMINI.md`, `QWEN.md` - mirrory dla terminali konkretnych LLM,
 - `docs/GOVERNANCE.md` - role, progi, statusy i veto,
 - `docs/SECURITY_MODEL.md` - granice bezpieczeństwa i zakazane operacje,
 - `docs/DEVELOPMENT_PROTOCOL.md` - jak dodawać narzędzia bez rozjechania architektury,
