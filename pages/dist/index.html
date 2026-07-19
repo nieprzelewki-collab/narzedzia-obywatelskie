@@ -123,6 +123,20 @@
   .alertbox button:hover { background:#fff; }
   #astatus { margin-top:10px; font-size:.85rem; color:var(--acid); }
 
+  .gsl-band { background:#eef1f3; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .gsl-head { display:grid; grid-template-columns:.9fr 1.1fr; gap:28px; margin-bottom:28px; align-items:end; }
+  .gsl-head p { font-size:.92rem; line-height:1.7; color:#3b4045; }
+  .gsl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
+  .gsl-card { display:flex; flex-direction:column; min-height:210px; padding:18px; background:#fff; color:var(--ink); border:1px solid var(--line); text-decoration:none; transition:transform .18s, border-color .18s, background .18s; }
+  .gsl-card:hover { transform:translateY(-3px); border-color:var(--acid-dark); background:#fbfff0; }
+  .gsl-card .num { font-size:.8rem; color:var(--acid-dark); font-weight:700; margin-bottom:12px; }
+  .gsl-card h3 { font-size:1.05rem; line-height:1.35; letter-spacing:.02em; margin-bottom:10px; }
+  .gsl-card p { font-size:.82rem; line-height:1.55; color:#4b5258; }
+  .gsl-card .go { margin-top:auto; padding-top:16px; font-size:.75rem; color:var(--acid-dark); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .gsl-note { margin-top:18px; font-size:.78rem; line-height:1.65; color:#596168; }
+  @media (max-width:900px){ .gsl-head { grid-template-columns:1fr; } .gsl-grid { grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .gsl-grid { grid-template-columns:1fr; } .gsl-card { min-height:0; } }
+
   footer { background:var(--panel); color:#aeb6bc; font-size:.78rem; line-height:1.7; padding:40px 4vw 60px; letter-spacing:.02em; }
   footer .fmax { max-width:1100px; margin:0 auto; }
   footer b { color:var(--panel-ink); }
@@ -219,6 +233,7 @@
         <div class="row">
           <button type="submit">Szukaj terminów</button>
           <button type="button" class="sec" id="geo">Sortuj wg odległości</button>
+          <a class="sec" href="#pomoc-teraz" style="display:inline-block;text-align:center;text-decoration:none;padding:14px 22px;font-size:.95rem;font-weight:700;letter-spacing:.08em;text-transform:uppercase;color:var(--ink);border:1px solid var(--ink)">Pomoc teraz</a>
         </div>
       </form>
       <div id="status"></div>
@@ -246,6 +261,52 @@
       </ol>
     </aside>
   </div>
+</section>
+
+<section class="sekcja gsl-band" id="pomoc-teraz">
+  <div class="gsl-head reveal">
+    <div class="naglowek" style="margin-bottom:0"><span class="nr">/02</span><h2>Pomoc teraz</h2></div>
+    <p>Jeśli nie szukasz zwykłej kolejki, tylko miejsca pomocy doraźnej albo podstawowej opieki, przejdź do właściwej kategorii oficjalnej wyszukiwarki NFZ "Gdzie się leczyć". Kolejkomat nie pobiera tu danych za Ciebie - kieruje do źródła.</p>
+  </div>
+  <div class="gsl-grid reveal">
+    <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/SOR" target="_blank" rel="noopener">
+      <span class="num">GSL 01</span>
+      <h3>Szpitalny Oddział Ratunkowy</h3>
+      <p>Gdy sprawa jest nagła i wymaga pomocy szpitalnej.</p>
+      <span class="go">Otwórz w GSL</span>
+    </a>
+    <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/PomocNocna" target="_blank" rel="noopener">
+      <span class="num">GSL 02</span>
+      <h3>Nocna i świąteczna pomoc POZ</h3>
+      <p>Wieczorem, w nocy, w weekend albo święto, gdy POZ nie pracuje.</p>
+      <span class="go">Otwórz w GSL</span>
+    </a>
+    <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/IzbaPrzyjec" target="_blank" rel="noopener">
+      <span class="num">GSL 03</span>
+      <h3>Izby przyjęć</h3>
+      <p>Miejsca przy szpitalach udzielające pomocy w trybie przyjęcia.</p>
+      <span class="go">Otwórz w GSL</span>
+    </a>
+    <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/LeczenieStomatologiczneDorazne" target="_blank" rel="noopener">
+      <span class="num">GSL 04</span>
+      <h3>Pomoc stomatologiczna doraźna</h3>
+      <p>Gdy chodzi o nagły problem stomatologiczny finansowany przez NFZ.</p>
+      <span class="go">Otwórz w GSL</span>
+    </a>
+    <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/POZ" target="_blank" rel="noopener">
+      <span class="num">GSL 05</span>
+      <h3>Lekarz, pielęgniarka i położna POZ</h3>
+      <p>Podstawowa opieka zdrowotna: gabinet lekarza POZ, pielęgniarki lub położnej.</p>
+      <span class="go">Otwórz w GSL</span>
+    </a>
+    <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/ProgramyProfilaktyczne" target="_blank" rel="noopener">
+      <span class="num">GSL 06</span>
+      <h3>Programy profilaktyczne</h3>
+      <p>Badania i programy profilaktyczne realizowane w ramach NFZ.</p>
+      <span class="go">Otwórz w GSL</span>
+    </a>
+  </div>
+  <p class="gsl-note reveal">Źródło: oficjalna wyszukiwarka NFZ "Gdzie się leczyć". W stanach zagrożenia życia dzwoń pod 112 lub 999. Kolejkomat nie udziela porad medycznych i nie zastępuje kontaktu z personelem medycznym.</p>
 </section>
 
 <footer>

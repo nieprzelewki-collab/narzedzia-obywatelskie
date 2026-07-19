@@ -1,5 +1,6 @@
 // Test E2E logiki Kolejkomatu w node (bez workera): mapping + adapter NFZ + parser czasu.
 // Uruchom: node scripts/test_e2e.mjs   (z katalogu PROJEKTY/NARZEDZIA-OBYWATELSKIE)
+import fs from "node:fs";
 import { suggest, WOJEWODZTWA } from "../worker/src/mapping.js";
 import { queues } from "../worker/src/nfz.js";
 import { parseWaitDays } from "../worker/src/index.js";
@@ -51,6 +52,13 @@ check("geo wygląda na mazowieckie (lat 51-54)", zGeo.length > 0 && zGeo.every((
 console.log(`   Najkrótszy termin: ${r?.waitLabel} | ${r?.provider} | ${r?.locality} | tel ${r?.phone}`);
 
 check("słownik województw ma 16 pozycji", Object.keys(WOJEWODZTWA).length === 16);
+
+// 4. UI: moduł GSL "Pomoc teraz" musi zostać w Kolejkomacie.
+const html = fs.readFileSync("worker/static/index.html", "utf8");
+check("UI ma sekcję Pomoc teraz", html.includes('id="pomoc-teraz"') && html.includes("Pomoc teraz"));
+check("UI linkuje SOR GSL", html.includes("https://gsl.nfz.gov.pl/GSL/GSL/SOR"));
+check("UI linkuje nocną pomoc GSL", html.includes("https://gsl.nfz.gov.pl/GSL/GSL/PomocNocna"));
+check("UI linkuje profilaktykę GSL", html.includes("https://gsl.nfz.gov.pl/GSL/GSL/ProgramyProfilaktyczne"));
 
 console.log(fails ? `\n${fails} TESTÓW PADŁO` : "\nWSZYSTKIE TESTY PASS");
 process.exit(fails ? 1 : 0);

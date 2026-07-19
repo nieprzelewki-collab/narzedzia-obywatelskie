@@ -1,5 +1,12 @@
 # CHANGELOG - Narzędzia Obywatelskie
 
+## [2026-07-19] Kolejkomat: moduł GSL "Pomoc teraz"
+
+- Dodana sekcja `Pomoc teraz` w Kolejkomacie z linkami do oficjalnych kategorii GSL NFZ: SOR, nocna i świąteczna pomoc POZ, izby przyjęć, pomoc stomatologiczna doraźna, POZ i programy profilaktyczne.
+- Zakres świadomie ograniczony do deep-linków: bez scrapowania GSL, bez nowych endpointów, bez sekretów, bez kosztu runtime.
+- Dodany proposal i głosowanie: `proposals/2026-07-19_gsl-pomoc-teraz.md`, `votes/2026-07-19_gsl-pomoc-teraz.json`.
+- Test `scripts/test_e2e.mjs` sprawdza obecność sekcji i kluczowych linków GSL w UI.
+
 ## [2026-07-19] Skill współpracy i governance gate
 
 - Dodany lokalny skill `skills/np-civic-tools/SKILL.md` dla rozwoju Narzędzi Obywatelskich przez proposal -> głosowanie -> dev -> testy -> osobny gate produkcyjny.

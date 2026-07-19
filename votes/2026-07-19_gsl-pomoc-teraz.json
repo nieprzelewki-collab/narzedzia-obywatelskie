@@ -1,0 +1,44 @@
+{
+  "proposal": "proposals/2026-07-19_gsl-pomoc-teraz.md",
+  "status": "ACCEPTED_FOR_DEV",
+  "votes": [
+    {
+      "role": "product",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Rozszerza Kolejkomat o realny scenariusz użytkownika: gdzie iść po pomoc teraz, nie tylko gdzie jest najkrótsza kolejka."
+    },
+    {
+      "role": "cto",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Etap 1 to frontendowe deep-linki do GSL, bez scrapowania i bez nowych zależności."
+    },
+    {
+      "role": "privacy",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Nie zapisuje żadnych danych i nie dodaje nowego endpointu."
+    },
+    {
+      "role": "security",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Brak sekretów, brak logo NFZ, jasne oznaczenie oficjalnego źródła."
+    },
+    {
+      "role": "ux",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Kafle sytuacyjne są prostsze niż menu GSL i dobrze pasują do języka Kolejkomatu."
+    },
+    {
+      "role": "cost",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Brak kosztu runtime, bo nie ma AI ani server-side fetch."
+    }
+  ],
+  "final_decision": "ACCEPTED_FOR_DEV",
+  "owner_prod_approval_required": true
+}

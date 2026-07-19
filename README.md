@@ -9,10 +9,12 @@
    (mapa synonimów + fuzzy ze stemmingiem po pełnym słowniku) -> lista placówek z terminem, adresem, telefonem
    do rejestracji, posortowana wg najkrótszego oczekiwania. Opcjonalnie sortowanie wg odległości (geolokalizacja
    w przeglądarce, haversine client-side).
-2. **Alert kolejkowy Kolejkomatu** - e-mail, gdy najkrótszy termin dla (świadczenie, województwo) skróci się o >= 14 dni.
+2. **Pomoc teraz w Kolejkomacie** - routing do oficjalnych kategorii GSL NFZ: SOR, nocna i świąteczna pomoc POZ,
+   izby przyjęć, pomoc stomatologiczna doraźna, POZ i programy profilaktyczne. Etap 1 to deep-linki, bez scrapowania GSL.
+3. **Alert kolejkowy Kolejkomatu** - e-mail, gdy najkrótszy termin dla (świadczenie, województwo) skróci się o >= 14 dni.
    Cron 1x dziennie, diff vs snapshot w D1, wysyłka Mailgun. Link wypisu w każdej wiadomości.
-3. **Urzędomat** - wklejasz pismo z ZUS, US, sądu albo gminy, dostajesz: co to znaczy, kroki, termin, konsekwencje i szkic odpowiedzi. Zero-retention: treść nie jest zapisywana.
-4. **Czytomat** - wklejasz link do artykułu, ustawy, rozporządzenia albo PDF, dostajesz streszczenie, punkty, znaczenie praktyczne i słowniczek. Zero-retention: linki i treści nie są zapisywane.
+4. **Urzędomat** - wklejasz pismo z ZUS, US, sądu albo gminy, dostajesz: co to znaczy, kroki, termin, konsekwencje i szkic odpowiedzi. Zero-retention: treść nie jest zapisywana.
+5. **Czytomat** - wklejasz link do artykułu, ustawy, rozporządzenia albo PDF, dostajesz streszczenie, punkty, znaczenie praktyczne i słowniczek. Zero-retention: linki i treści nie są zapisywane.
 
 ## Produkcja
 
@@ -56,6 +58,9 @@ scripts/governance_check.mjs  walidacja proposal/votes pod skill współpracy
 Źródło danych Kolejkomatu: **API NFZ "Informator o Terminach Leczenia" v1.4** - `https://apinfz.nfz.gov.pl/app-itl-api-pcus/`.
 Publiczne, bez klucza, JSON. Endpointy: `/queues` (kolejki), `/benefits` (słownik, wymaga `name` >= 3 znaki).
 
+Źródło routingów "Pomoc teraz": **GSL NFZ "Gdzie się leczyć"** - `https://gsl.nfz.gov.pl/GSL/`.
+Etap 1 używa tylko linków do oficjalnych kategorii GSL. Nie scrapujemy wyników GSL i nie wywołujemy ich endpointów po stronie serwera.
+
 ## Fakty zweryfikowane u źródła (19.07.2026)
 
 - API NFZ działa bez autoryzacji; **rate limit agresywny** (429 przy kilku req/s) -> adapter ma backoff, cron odpytuje sekwencyjnie z pauzą 2,5 s.
@@ -63,6 +68,7 @@ Publiczne, bez klucza, JSON. Endpointy: `/queues` (kolejki), `/benefits` (słown
 - Dane NFZ aktualizowane ~miesięcznie (stan na 1. dzień miesiąca) -> alerty = "kolejka wyraźnie się skróciła", nie "zwolnił się termin jutro".
 - Poradnie kardiologiczne od 01.07.2026 są w centralnej e-rejestracji; Kolejkomat pokazuje szpitalne oddziały kardiologiczne + notę kierującą na pacjent.gov.pl / mojeIKP / 800 190 590.
 - `/benefits` limit max 25/stronę; wyszukiwarka słownika kapryśna -> słownik trzymamy jako lokalny snapshot.
+- GSL NFZ ma kategorie m.in. SOR, nocna pomoc POZ, izby przyjęć, POZ, apteki, punkty zaopatrzenia i programy profilaktyczne. Pierwsza integracja w Kolejkomacie to deep-linki do oficjalnych kategorii, bez kopii danych.
 
 ## Znane ograniczenia MVP
 
@@ -73,6 +79,7 @@ Publiczne, bez klucza, JSON. Endpointy: `/queues` (kolejki), `/benefits` (słown
 - Słownik świadczeń to snapshot - TODO: cron odświeżający raz w miesiącu.
 - Parasol jest statyczny i nie ma już waitlisty ani dostępu do D1.
 - Urzędomat i Czytomat mają limit 10 analiz/dzień/IP; przed szerszą promocją warto dodać Turnstile.
+- Moduł GSL "Pomoc teraz" nie filtruje jeszcze po województwie/miejscowości w naszym UI. Użytkownik trafia do oficjalnej kategorii GSL i filtruje tam.
 
 ## Rozwój przez skill
 
@@ -146,7 +153,7 @@ Po każdym deployu: `curl -I [URL]` + test funkcji krytycznej per `cloud_safety`
 
 ## Testy
 
-- `node scripts/test_e2e.mjs` - 14 checków (mapping, parser czasu, żywe API NFZ). Ostatni przebieg 19.07.2026: ALL PASS.
+- `node scripts/test_e2e.mjs` - mapping, parser czasu, żywe API NFZ i obecność linków GSL w UI. Ostatni przebieg 19.07.2026: ALL PASS.
 - UI zweryfikowane wizualnie (Playwright): `docs/screenshots/`.
 - Przepływ Kolejkomatu: wyszukiwanie + alert POST -> D1 -> wypis tokenem.
 - Przepływ Urzędomatu: syntetyczne pisma ZUS/US przez curl/UI.
