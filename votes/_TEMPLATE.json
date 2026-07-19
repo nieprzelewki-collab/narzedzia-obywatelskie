@@ -1,0 +1,45 @@
+{
+  "proposal": "proposals/YYYY-MM-DD_krotka-nazwa.md",
+  "status": "DRAFT",
+  "votes": [
+    {
+      "role": "product",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Ma jasną wartość dla użytkownika."
+    },
+    {
+      "role": "cto",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Ścieżka techniczna i testy są wystarczające."
+    },
+    {
+      "role": "privacy",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Nie zapisuje danych wrażliwych."
+    },
+    {
+      "role": "security",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Nie zwiększa powierzchni ataku."
+    },
+    {
+      "role": "ux",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Język i przepływ są zrozumiałe."
+    },
+    {
+      "role": "cost",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Koszt jest ograniczony limitem."
+    }
+  ],
+  "final_decision": "ACCEPTED_FOR_DEV",
+  "owner_prod_approval_required": true
+}
+

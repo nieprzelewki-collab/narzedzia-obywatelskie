@@ -1,0 +1,40 @@
+name: civic-tools-ci
+
+on:
+  pull_request:
+  push:
+    branches:
+      - main
+
+permissions:
+  contents: read
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+      - name: Syntax check
+        run: |
+          node --check scripts/governance_check.mjs
+          node --check scripts/np_civic.mjs
+      - name: Governance check
+        run: node scripts/governance_check.mjs
+      - name: Secret pattern scan
+        run: |
+          if grep -RInE \
+            --exclude-dir=.git \
+            --exclude='governance_check.mjs' \
+            --exclude='ci.yml' \
+            -e '-----BEGIN .*PRIVATE KEY|AIza|sk-[A-Za-z0-9_-]{20,}|xox[baprs]-|gh[pousr]_|(GEMINI|MAILGUN|CLOUDFLARE|OPENAI|ANTHROPIC|AWS|TOKEN|SECRET|PASSWORD)[[:space:]]*=' .
+          then
+            echo "Potential secret pattern found"
+            exit 1
+          fi
+      - name: Skill validate
+        run: |
+          test -f skills/np-civic-tools/SKILL.md
+          grep -q '^name: np-civic-tools$' skills/np-civic-tools/SKILL.md

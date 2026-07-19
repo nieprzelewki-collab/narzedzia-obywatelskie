@@ -1,0 +1,389 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Kolejkomat - gdzie najszybciej dostaniesz się do lekarza na NFZ</title>
+<meta name="description" content="Wpisz specjalizację po ludzku, zobacz gdzie w Twoim województwie czeka się najkrócej. Darmowe dane NFZ, zero rejestracji.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⏱</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#16181a; --steel-1:#e8eaec; --steel-2:#b9bec3; --steel-3:#9aa0a6;
+    --panel:#0b0c0d; --panel-ink:#e9ecee; --acid:#a4d426; --acid-dark:#5d8f22; --acid-deep:#5d7a12;
+    --chip:#7d868d; --line:#c7ccd1; --mono:"Space Mono",monospace; --disp:"Anton",sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; }
+  .rodzina { display:flex; gap:18px; align-items:center; padding:10px 4vw; background:#000; font-family:var(--mono); font-size:.75rem; letter-spacing:.1em; overflow-x:auto; white-space:nowrap; }
+  .rodzina a { color:#8a9199; text-decoration:none; }
+  .rodzina a:hover { color:var(--acid); }
+  .rodzina a.tu { color:var(--acid); font-weight:700; }
+  .rodzina .dom { color:#e9ecee; font-weight:700; }
+
+  html { scroll-behavior:smooth; }
+  body { font-family:var(--mono); color:var(--ink); background:linear-gradient(180deg,var(--steel-1) 0%,var(--steel-2) 45%,var(--steel-1) 100%); min-height:100vh; }
+
+  /* ---- progress rail ---- */
+  .rail { position:fixed; top:24px; right:14px; z-index:90; display:flex; flex-direction:column; gap:5px; }
+  .rail span { width:10px; height:10px; background:#fff; opacity:.55; }
+  .rail span.on { background:var(--acid); opacity:1; }
+  .rail span:last-child { background:transparent; border:1px solid #fff; }
+
+  /* =========================================================
+     HERO "ORIGIN LOG": czarne pole z kartami + panel boczny
+     ========================================================= */
+  .hero { display:grid; grid-template-columns:1fr 360px; min-height:96vh; background:var(--panel); }
+  .pole { position:relative; overflow:hidden; }
+  .pole .hint { position:absolute; top:34px; left:50%; transform:translateX(-50%); color:var(--acid); font-size:.85rem; letter-spacing:.12em; z-index:1; }
+
+  .karta-log { position:absolute; width:min(340px,44%); padding:18px 18px 14px; cursor:grab; user-select:none; touch-action:none; box-shadow:0 14px 44px rgba(0,0,0,.45); }
+  .karta-log:active { cursor:grabbing; }
+  .karta-log h3 { font-size:1.25rem; font-weight:700; letter-spacing:.04em; border-bottom:2px solid currentColor; padding-bottom:8px; margin-bottom:10px; }
+  .karta-log h3 span { display:block; font-size:1rem; }
+  .karta-log p { font-size:.8rem; line-height:1.55; margin-bottom:10px; }
+  .karta-log .fig { height:150px; overflow:hidden; position:relative; }
+  .karta-log .fig > div { position:absolute; inset:0; background-image:url("/img/hero_wide.png"); background-repeat:no-repeat; filter:grayscale(1) contrast(1.35) brightness(1.02); mix-blend-mode:multiply; }
+  .karta-log .figcap { display:flex; justify-content:space-between; font-size:.7rem; letter-spacing:.08em; margin-top:8px; }
+  .k-zielona { background:var(--acid); color:#101400; }
+  .k-ciemna  { background:var(--acid-deep); color:#eaf3cf; }
+  .k-szara   { background:var(--steel-2); color:var(--ink); }
+
+  /* panel boczny (jak ORIGIN LOG: MATCHA) */
+  .panel-boczny { background:var(--steel-1); padding:44px 32px 40px; display:flex; flex-direction:column; gap:26px; border-left:1px solid #000; }
+  .panel-boczny .brand { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:clamp(2.4rem,3vw,3.4rem); line-height:1.02; letter-spacing:.01em; }
+  .panel-boczny .claim { font-size:1.15rem; font-weight:700; line-height:1.5; letter-spacing:.02em; }
+  .panel-boczny .opis { font-size:.9rem; line-height:1.7; color:#3b4045; }
+  .panel-boczny .cta { display:block; text-align:center; background:var(--panel); color:var(--acid); text-decoration:none; padding:16px 20px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; }
+  .panel-boczny .cta:hover { background:var(--acid); color:var(--panel); }
+  .panel-boczny .zrodlo { font-size:.72rem; color:#6b7176; line-height:1.6; margin-top:auto; }
+
+  /* pasek kroków na dole pola */
+  .os-krokow { position:absolute; left:0; right:0; bottom:0; display:flex; gap:4vw; padding:16px 3vw 18px; color:var(--acid); font-size:.8rem; letter-spacing:.05em; background:linear-gradient(0deg,rgba(0,0,0,.75),transparent); }
+  .os-krokow b { display:block; }
+
+  /* mobile: panel na górze, karty w stosie */
+  @media (max-width:860px) {
+    .hero { display:flex; flex-direction:column; min-height:0; }
+    .panel-boczny { order:-1; border-left:0; border-bottom:1px solid #000; padding:32px 6vw; }
+    .pole { padding:56px 6vw 70px; }
+    .pole .hint { display:none; }
+    .karta-log { position:static; width:100%; margin:0 0 18px; cursor:default; touch-action:auto; }
+    .os-krokow { position:static; background:none; padding:8px 0 0; flex-wrap:wrap; gap:14px 26px; }
+  }
+
+  /* ---- marquee ---- */
+  .marquee { background:var(--panel); color:var(--panel-ink); overflow:hidden; white-space:nowrap; padding:10px 0; font-size:.85rem; letter-spacing:.12em; border-top:1px solid #222; }
+  .marquee-tor { display:inline-block; animation:mq 28s linear infinite; }
+  @keyframes mq { from { transform:translateX(0);} to { transform:translateX(-50%);} }
+  .marquee b { color:var(--acid); font-weight:700; }
+
+  /* ---- sekcje / formularz / wyniki (bez zmian koncepcji) ---- */
+  .sekcja { max-width:1100px; margin:0 auto; padding:64px 4vw; }
+  .naglowek { display:flex; align-items:baseline; gap:18px; margin-bottom:28px; }
+  .naglowek h2 { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:clamp(1.8rem,4vw,3rem); letter-spacing:.02em; }
+  .naglowek .nr { font-family:var(--mono); color:var(--acid-dark); font-size:1rem; }
+
+  .protokol { display:grid; grid-template-columns:1.2fr .8fr; gap:32px; align-items:start; }
+  @media (max-width:760px){ .protokol { grid-template-columns:1fr; } }
+  .kroki { background:var(--panel); color:var(--panel-ink); padding:26px 24px; }
+  .kroki h3 { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:1.5rem; margin-bottom:16px; letter-spacing:.03em; }
+  .kroki ol { list-style:none; display:grid; gap:10px; font-size:.9rem; }
+  .kroki li::before { content:attr(data-nr) ". "; color:var(--acid); font-weight:700; }
+
+  form.szukaj { background:#f4f5f6; border:1px solid var(--line); padding:24px; display:grid; gap:16px; box-shadow:0 8px 40px rgba(0,0,0,.08); }
+  label { font-size:.75rem; font-weight:700; letter-spacing:.1em; text-transform:uppercase; display:block; margin-bottom:6px; color:#3b4045; }
+  label b { color:var(--acid-dark); margin-right:6px; }
+  input[type=text], input[type=email], select { width:100%; padding:12px 14px; font-size:1rem; font-family:var(--mono); border:1px solid var(--line); background:#fff; border-radius:0; }
+  input:focus, select:focus { outline:2px solid var(--acid); outline-offset:-1px; }
+  .row { display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  @media (max-width:560px){ .row { grid-template-columns:1fr; } }
+  button { font-family:var(--mono); background:var(--panel); color:#fff; border:0; padding:14px 22px; font-size:.95rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; transition:background .2s; }
+  button:hover { background:var(--acid-dark); }
+  button.sec { background:transparent; color:var(--ink); border:1px solid var(--ink); }
+  button.sec:hover { background:#fff; }
+
+  #status { margin:20px 0 0; font-size:.9rem; color:#3b4045; letter-spacing:.03em; }
+
+  .karta { background:#fff; border:1px solid var(--line); padding:18px 20px; margin-top:14px; position:relative; opacity:0; transform:translateY(14px); transition:opacity .5s, transform .5s; }
+  .karta.widoczna { opacity:1; transform:none; }
+  .karta .lp { position:absolute; top:0; right:0; background:var(--chip); color:#fff; font-size:.75rem; padding:4px 10px; }
+  .karta .termin { font-family:var(--disp); font-weight:400; font-size:1.7rem; color:var(--acid-dark); letter-spacing:.02em; }
+  .karta .dzieci { display:inline-block; font-size:.7rem; background:var(--panel); color:var(--acid); padding:3px 9px; margin-left:10px; vertical-align:middle; letter-spacing:.08em; }
+  .karta p { margin:.35em 0; font-size:.9rem; }
+  .karta a.tel { color:var(--acid-dark); font-weight:700; text-decoration:none; }
+  .odleglosc { color:#6b7176; font-size:.8rem; }
+
+  .alertbox { margin-top:36px; background:var(--panel); color:var(--panel-ink); padding:26px 24px; display:none; }
+  .alertbox h3 { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:1.5rem; letter-spacing:.03em; margin-bottom:8px; }
+  .alertbox .note { font-size:.85rem; color:#aeb6bc; margin-bottom:16px; }
+  .alertbox input { background:#1b1e21; border:1px solid #33383d; color:#fff; }
+  .alertbox button { background:var(--acid); color:var(--panel); }
+  .alertbox button:hover { background:#fff; }
+  #astatus { margin-top:10px; font-size:.85rem; color:var(--acid); }
+
+  footer { background:var(--panel); color:#aeb6bc; font-size:.78rem; line-height:1.7; padding:40px 4vw 60px; letter-spacing:.02em; }
+  footer .fmax { max-width:1100px; margin:0 auto; }
+  footer b { color:var(--panel-ink); }
+
+  .reveal { opacity:0; transform:translateY(20px); transition:opacity .6s ease, transform .6s ease; }
+  .reveal.widoczna { opacity:1; transform:none; }
+</style>
+</head>
+<body>
+
+<nav class="rodzina"><a class="dom" href="https://narzedzia-obywatelskie.pages.dev/">NARZĘDZIA OBYWATELSKIE</a><a class="tu" href="https://kolejkomat.pages.dev/">01 KOLEJKOMAT</a><a href="https://urzedomat.pages.dev/">02 URZĘDOMAT</a><a href="https://czytomat.pages.dev/">03 CZYTOMAT</a></nav>
+<div class="rail" id="rail"><span></span><span></span><span></span><span></span><span></span><span></span><span></span><span></span></div>
+
+<!-- HERO: LOG KOLEJKOMATU -->
+<section class="hero">
+  <div class="pole" id="pole">
+    <span class="hint">(przeciągnij karty, żeby zobaczyć)</span>
+
+    <article class="karta-log k-szara" style="left:6%; top:10%">
+      <h3>01.<span>WPISUJESZ PO LUDZKU</span></h3>
+      <p>"Okulista", "ortopeda", "zdrowie psychiczne". My tłumaczymy to na urzędowy słownik NFZ - Ty nie musisz go znać.</p>
+      <div class="fig"><div style="background-size:280%; background-position:12% 62%"></div></div>
+      <div class="figcap"><span>FIG. 01</span><span>SPECJALIZACJA</span></div>
+    </article>
+
+    <article class="karta-log k-zielona" style="left:30%; top:26%">
+      <h3>02.<span>WIDZISZ, GDZIE NAJKRÓCEJ</span></h3>
+      <p>Wszystkie placówki w województwie, posortowane od najkrótszego czasu oczekiwania. Czasem 40 km dalej czeka się 8 miesięcy krócej.</p>
+      <div class="fig"><div style="background-size:300%; background-position:35% 8%"></div></div>
+      <div class="figcap"><span>FIG. 02</span><span>CZAS OCZEKIWANIA</span></div>
+    </article>
+
+    <article class="karta-log k-ciemna" style="left:56%; top:8%">
+      <h3>03.<span>DZWONISZ I ZAPISUJESZ SIĘ</span></h3>
+      <p>Przy każdym wyniku jest telefon do rejestracji. Jeden klik na komórce - i umawiasz wizytę tam, gdzie szybciej.</p>
+      <div class="fig"><div style="background-size:300%; background-position:72% 18%"></div></div>
+      <div class="figcap"><span>FIG. 03</span><span>REJESTRACJA</span></div>
+    </article>
+
+    <article class="karta-log k-zielona" style="left:16%; top:52%">
+      <h3>04.<span>ALERT PILNUJE KOLEJKI</span></h3>
+      <p>Zostawiasz e-mail, a gdy najkrótszy termin w Twoim województwie wyraźnie się skróci - dajemy znać. Zero spamu.</p>
+      <div class="fig"><div style="background-size:340%; background-position:50% 48%"></div></div>
+      <div class="figcap"><span>FIG. 04</span><span>BILET BEZ KOLEJKI</span></div>
+    </article>
+
+    <div class="os-krokow">
+      <span><b>01.</b>Wpisujesz</span>
+      <span><b>02.</b>Porównujesz</span>
+      <span><b>03.</b>Dzwonisz</span>
+      <span><b>04.</b>Alert czuwa</span>
+    </div>
+  </div>
+
+  <aside class="panel-boczny">
+    <div class="brand">Kolejko<br>mat</div>
+    <p class="claim">GDZIE NAJSZYBCIEJ DOSTANIESZ SIĘ DO LEKARZA NA NFZ</p>
+    <p class="opis">Darmowa wyszukiwarka terminów NFZ. Wpisujesz specjalizację po ludzku, widzisz w którym mieście czeka się najkrócej i dostajesz telefon do zapisu na wizytę. Bez konta, bez logowania, bez urzędowego słownika.</p>
+    <a class="cta" href="#protokol">Szukaj terminu →</a>
+    <p class="zrodlo"><a href="https://narzedzia-obywatelskie.pages.dev/" style="color:inherit">NARZĘDZIE 01 z rodziny <b style="color:var(--acid-dark)">NARZĘDZIA OBYWATELSKIE</b> → (działa też: Urzędomat - pisma po ludzku)</a></p>
+    <p class="zrodlo">Dane: Narodowy Fundusz Zdrowia -<br>Informator o Terminach Leczenia (API publiczne).<br>Kolejkomat nie jest serwisem NFZ.</p>
+  </aside>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee"><div class="marquee-tor" id="mq">
+  DANE: NARODOWY FUNDUSZ ZDROWIA &nbsp;·&nbsp; <b>ZA DARMO</b> &nbsp;·&nbsp; BEZ REJESTRACJI &nbsp;·&nbsp; BEZ URZĘDOWEGO SŁOWNIKA &nbsp;·&nbsp; <b>16 WOJEWÓDZTW</b> &nbsp;·&nbsp; 562 ŚWIADCZENIA &nbsp;·&nbsp;
+</div></div>
+
+<!-- PROTOKÓŁ + SZUKAJKA -->
+<section class="sekcja" id="protokol">
+  <div class="naglowek reveal"><span class="nr">/01</span><h2>Protokół wyszukiwania</h2></div>
+  <div class="protokol">
+    <div>
+      <form class="szukaj reveal" id="f">
+        <div id="szukaj">
+          <label for="q"><b>01</b>Do kogo szukasz terminu?</label>
+          <input type="text" id="q" placeholder="np. okulista, ortopeda, endokrynolog..." autocomplete="off" list="sug" required>
+          <datalist id="sug"></datalist>
+        </div>
+        <div class="row">
+          <div>
+            <label for="woj"><b>02</b>Województwo</label>
+            <select id="woj" required><option value="">- wybierz -</option></select>
+          </div>
+          <div>
+            <label for="pilny"><b>03</b>Tryb</label>
+            <select id="pilny">
+              <option value="0">przypadek stabilny</option>
+              <option value="1">przypadek pilny (skierowanie "pilne")</option>
+            </select>
+          </div>
+        </div>
+        <div class="row">
+          <button type="submit">Szukaj terminów</button>
+          <button type="button" class="sec" id="geo">Sortuj wg odległości</button>
+        </div>
+      </form>
+      <div id="status"></div>
+      <div id="wyniki"></div>
+
+      <div class="alertbox" id="alertbox">
+        <h3>Protokół alertu</h3>
+        <p class="note">Dam znać mailem, gdy najkrótszy termin w Twoim województwie wyraźnie się skróci. Dane NFZ aktualizują się ok. raz w miesiącu - zero spamu.</p>
+        <div class="row">
+          <input type="email" id="amail" placeholder="twój e-mail">
+          <button type="button" id="adodaj">Włącz alert</button>
+        </div>
+        <p id="astatus"></p>
+      </div>
+    </div>
+
+    <aside class="kroki reveal" id="alert-info">
+      <h3>Jak to działa</h3>
+      <ol>
+        <li data-nr="01">WPISUJESZ PO LUDZKU ("okulista", nie "świadczenia z zakresu okulistyki")</li>
+        <li data-nr="02">TŁUMACZYMY NA SŁOWNIK NFZ I PYTAMY INFORMATOR O TERMINY</li>
+        <li data-nr="03">WIDZISZ, GDZIE CZEKA SIĘ NAJKRÓCEJ + TELEFON DO REJESTRACJI</li>
+        <li data-nr="04">DZWONISZ I ZAPISUJESZ SIĘ TAM, GDZIE SZYBCIEJ</li>
+        <li data-nr="05">ALERT PILNUJE KOLEJKI ZA CIEBIE I PISZE, GDY SIĘ SKRÓCI</li>
+      </ol>
+    </aside>
+  </div>
+</section>
+
+<footer>
+  <div class="fmax">
+    <b>Dane: Narodowy Fundusz Zdrowia - Informator o Terminach Leczenia (API publiczne).</b> Kolejkomat nie jest serwisem NFZ.
+    Terminy raportują placówki - przed wizytą zawsze potwierdź telefonicznie. Kolejkomat nie udziela porad medycznych i nie zapisuje na wizyty.<br><br>
+    <b>Prywatność:</b> nie zbieramy żadnych danych o stanie zdrowia. E-mail podany przy alercie służy wyłącznie do wysyłki powiadomień
+    o terminach i jest usuwany po wypisaniu (link w każdej wiadomości).
+  </div>
+</footer>
+
+<script>
+const $ = (id) => document.getElementById(id);
+let ostatnieWyniki = [];
+let ostatnieZapytanie = null;
+let mojePolozenie = null;
+
+// marquee: zduplikuj treść dla płynnej pętli
+$("mq").innerHTML += $("mq").innerHTML;
+
+// progress rail wg scrolla
+const railKostki = document.querySelectorAll("#rail span");
+addEventListener("scroll", () => {
+  const p = scrollY / (document.body.scrollHeight - innerHeight || 1);
+  railKostki.forEach((k, i) => k.classList.toggle("on", i / railKostki.length <= p));
+}, { passive:true });
+
+// reveal on scroll
+const obs = new IntersectionObserver((es) => es.forEach(e => e.isIntersecting && e.target.classList.add("widoczna")), { threshold:.15 });
+document.querySelectorAll(".reveal").forEach(el => obs.observe(el));
+
+// przeciąganie kart hero (desktop; na mobile karty są statyczne w stosie)
+if (matchMedia("(min-width:861px)").matches) {
+  let zTop = 10;
+  document.querySelectorAll(".karta-log").forEach((k) => {
+    k.addEventListener("pointerdown", (e) => {
+      const pole = $("pole").getBoundingClientRect();
+      const r = k.getBoundingClientRect();
+      const dx = e.clientX - r.left, dy = e.clientY - r.top;
+      k.style.zIndex = ++zTop;
+      k.setPointerCapture(e.pointerId);
+      const ruch = (ev) => {
+        const x = Math.min(Math.max(ev.clientX - pole.left - dx, -r.width * .4), pole.width - r.width * .6);
+        const y = Math.min(Math.max(ev.clientY - pole.top - dy, 0), pole.height - 60);
+        k.style.left = x + "px"; k.style.top = y + "px";
+      };
+      const stop = () => { k.removeEventListener("pointermove", ruch); k.removeEventListener("pointerup", stop); };
+      k.addEventListener("pointermove", ruch);
+      k.addEventListener("pointerup", stop);
+    });
+  });
+}
+
+fetch("/api/wojewodztwa").then(r => r.json()).then(w => {
+  for (const [kod, nazwa] of Object.entries(w).sort((a, b) => a[1].localeCompare(b[1], "pl"))) {
+    const o = document.createElement("option");
+    o.value = kod; o.textContent = nazwa;
+    $("woj").appendChild(o);
+  }
+});
+
+let sugTimer;
+$("q").addEventListener("input", () => {
+  clearTimeout(sugTimer);
+  sugTimer = setTimeout(async () => {
+    const q = $("q").value.trim();
+    if (q.length < 3) return;
+    const d = await (await fetch("/api/sugestie?q=" + encodeURIComponent(q))).json();
+    $("sug").innerHTML = d.matches.map(m => `<option value="${m}">`).join("");
+  }, 250);
+});
+
+$("f").addEventListener("submit", async (e) => {
+  e.preventDefault();
+  const q = $("q").value.trim(), woj = $("woj").value, pilny = $("pilny").value;
+  $("wyniki").innerHTML = ""; $("alertbox").style.display = "none";
+  $("status").textContent = "> tłumaczę na słownik NFZ...";
+  const sug = await (await fetch("/api/sugestie?q=" + encodeURIComponent(q))).json();
+  if (!sug.matches.length) { $("status").textContent = "> " + (sug.note || "nie znalazłem świadczenia."); return; }
+  const benefit = sug.matches[0];
+  ostatnieZapytanie = { benefit, woj, pilny };
+  $("status").textContent = `> szukam kolejek: ${benefit}...`;
+  try {
+    const d = await (await fetch(`/api/kolejki?benefit=${encodeURIComponent(benefit)}&woj=${woj}&pilny=${pilny}`)).json();
+    if (d.error) { $("status").textContent = "> błąd: " + d.error; return; }
+    ostatnieWyniki = d.results;
+    const nota = sug.note ? `\n⚠ ${sug.note}` : "";
+    $("status").textContent = `> ${d.count} placówek / pokazuję ${d.results.length} z najkrótszym oczekiwaniem / świadczenie: ${benefit}${nota}`;
+    $("status").style.whiteSpace = "pre-line";
+    rysuj();
+    $("alertbox").style.display = "block";
+  } catch { $("status").textContent = "> nie udało się pobrać danych z NFZ - spróbuj za chwilę (limit zapytań)."; }
+});
+
+$("geo").addEventListener("click", () => {
+  navigator.geolocation.getCurrentPosition(p => {
+    mojePolozenie = { lat: p.coords.latitude, lon: p.coords.longitude };
+    rysuj();
+  }, () => { $("status").textContent = "> nie udało się pobrać lokalizacji - sortuję wg terminu."; });
+});
+
+function km(a, b) {
+  const R = 6371, dLa = (b.lat - a.lat) * Math.PI / 180, dLo = (b.lon - a.lon) * Math.PI / 180;
+  const x = Math.sin(dLa/2)**2 + Math.cos(a.lat*Math.PI/180) * Math.cos(b.lat*Math.PI/180) * Math.sin(dLo/2)**2;
+  return R * 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1-x));
+}
+
+function rysuj() {
+  let w = [...ostatnieWyniki];
+  if (mojePolozenie) {
+    w.forEach(r => r.km = (r.lat && r.lon) ? km(mojePolozenie, r) : null);
+    w.sort((a, b) => (a.km ?? 1e9) - (b.km ?? 1e9));
+  }
+  $("wyniki").innerHTML = w.map((r, i) => `
+    <div class="karta">
+      <span class="lp">${String(i + 1).padStart(2, "0")}</span>
+      <span class="termin">${r.waitLabel ?? "brak danych"}</span>
+      ${r.forChildren ? '<span class="dzieci">PRZYJMUJE DZIECI</span>' : ""}
+      ${r.km != null ? `<span class="odleglosc"> · ${r.km.toFixed(0)} km ode mnie</span>` : ""}
+      <p><strong>${r.provider}</strong></p>
+      <p>${r.place ?? ""}</p>
+      <p>${r.address}, ${r.locality}</p>
+      <p>Rejestracja: <a class="tel" href="tel:${(r.phone||"").replace(/\s/g,"")}">${r.phone ?? "brak telefonu"}</a></p>
+      <p class="odleglosc">stan danych NFZ: ${r.dataAsAt ?? "?"} · oczekujących: ${r.awaiting ?? "?"}</p>
+    </div>`).join("");
+  document.querySelectorAll(".karta").forEach((k, i) => setTimeout(() => k.classList.add("widoczna"), 60 * i));
+}
+
+$("adodaj").addEventListener("click", async () => {
+  if (!ostatnieZapytanie) return;
+  const email = $("amail").value.trim();
+  const res = await fetch("/api/alert", {
+    method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ email, benefit: ostatnieZapytanie.benefit, woj: ostatnieZapytanie.woj, pilny: ostatnieZapytanie.pilny === "1" }),
+  });
+  const d = await res.json();
+  $("astatus").textContent = d.ok ? "> alert włączony. Odezwiemy się tylko, gdy termin wyraźnie się skróci." : ("> błąd: " + d.error);
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,148 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Czytomat - ustawa albo artykuł na ludzki język</title>
+<meta name="description" content="Wklej link do ustawy, rozporządzenia albo artykułu - dostaniesz po ludzku: streszczenie, najważniejsze punkty, co to znaczy dla Ciebie i słowniczek. Czyta też PDF-y z Dziennika Ustaw.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📖</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#16181a; --steel-1:#e8eaec; --steel-2:#b9bec3; --panel:#0b0c0d; --panel-ink:#e9ecee;
+    --acid:#a4d426; --acid-dark:#5d8f22; --line:#c7ccd1; --mono:"Space Mono",monospace; --disp:"Anton",sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; }
+  body { font-family:var(--mono); color:var(--ink); background:var(--panel); min-height:100vh; }
+
+  .rodzina { display:flex; gap:18px; align-items:center; padding:10px 4vw; background:#000; font-size:.75rem; letter-spacing:.1em; overflow-x:auto; white-space:nowrap; }
+  .rodzina a { color:#8a9199; text-decoration:none; }
+  .rodzina a:hover { color:var(--acid); }
+  .rodzina a.tu { color:var(--acid); font-weight:700; }
+  .rodzina .dom { color:#e9ecee; font-weight:700; }
+
+  .uklad { display:grid; grid-template-columns:1fr 360px; min-height:calc(100vh - 38px); }
+  .pole { padding:5vh 4vw 8vh; }
+
+  .robot { background:var(--steel-1); border:1px solid #000; box-shadow:0 16px 50px rgba(0,0,0,.5); padding:26px; max-width:760px; }
+  .robot h2 { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:1.6rem; letter-spacing:.03em; border-bottom:2px solid var(--ink); padding-bottom:10px; margin-bottom:14px; }
+  .robot h2 b { color:var(--acid-dark); margin-right:10px; font-family:var(--mono); font-size:1rem; vertical-align:middle; }
+  input[type=url] { width:100%; padding:14px; font-family:var(--mono); font-size:.95rem; border:1px solid var(--line); background:#fff; }
+  input[type=url]:focus { outline:2px solid var(--acid); outline-offset:-1px; }
+  .przyklady { font-size:.75rem; color:#6b7176; margin-top:10px; line-height:1.7; }
+  .akcje { display:flex; gap:12px; margin-top:14px; align-items:center; flex-wrap:wrap; }
+  button { font-family:var(--mono); background:var(--panel); color:var(--acid); border:0; padding:15px 26px; font-size:.95rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+  button:hover { background:var(--acid); color:var(--panel); }
+  button:disabled { opacity:.5; cursor:wait; }
+  #status { font-size:.85rem; color:#3b4045; }
+  .licznik { font-size:.75rem; color:#6b7176; margin-top:6px; }
+
+  .wynik { max-width:760px; margin-top:22px; display:none; }
+  .sekcja-w { background:var(--steel-1); border:1px solid #000; padding:20px 22px; margin-bottom:14px; box-shadow:0 10px 34px rgba(0,0,0,.4); }
+  .sekcja-w.zielona { background:var(--acid); }
+  .sekcja-w h3 { font-size:.8rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:10px; }
+  .sekcja-w h3 b { color:var(--acid-dark); margin-right:8px; }
+  .sekcja-w.zielona h3 b { color:#101400; }
+  .sekcja-w p, .sekcja-w li { font-size:.95rem; line-height:1.65; }
+  .sekcja-w ul, .sekcja-w ol { padding-left:22px; display:grid; gap:6px; }
+  .tytul-w { font-family:var(--disp); font-weight:400; font-size:1.35rem; letter-spacing:.02em; line-height:1.2; }
+  .meta-w { font-size:.75rem; color:#6b7176; margin-top:8px; word-break:break-all; }
+  dt { font-weight:700; margin-top:8px; }
+  dd { margin-left:0; font-size:.9rem; }
+
+  .panel-boczny { background:var(--steel-1); padding:40px 32px; display:flex; flex-direction:column; gap:24px; border-left:1px solid #000; }
+  .panel-boczny .brand { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:clamp(2.2rem,2.8vw,3rem); line-height:1.05; }
+  .panel-boczny .kostki { display:flex; gap:5px; }
+  .panel-boczny .kostki span { width:10px; height:10px; background:#c7ccd1; }
+  .panel-boczny .kostki span:nth-child(3) { background:var(--acid-dark); }
+  .panel-boczny .claim { font-size:1.1rem; font-weight:700; line-height:1.55; }
+  .panel-boczny .opis { font-size:.88rem; line-height:1.7; color:#3b4045; }
+  .panel-boczny .zrodlo { font-size:.72rem; color:#6b7176; line-height:1.6; margin-top:auto; }
+
+  @media (max-width:900px) {
+    .uklad { display:flex; flex-direction:column; }
+    .panel-boczny { order:-1; border-left:0; border-bottom:1px solid #000; padding:28px 6vw; }
+    .pole { padding:32px 6vw 56px; }
+  }
+</style>
+</head>
+<body>
+<nav class="rodzina">
+  <a class="dom" href="https://narzedzia-obywatelskie.pages.dev/">NARZĘDZIA OBYWATELSKIE</a>
+  <a href="https://kolejkomat.pages.dev/">01 KOLEJKOMAT</a>
+  <a href="https://urzedomat.pages.dev/">02 URZĘDOMAT</a>
+  <a class="tu" href="https://czytomat.pages.dev/">03 CZYTOMAT</a>
+</nav>
+<div class="uklad">
+  <main class="pole">
+    <section class="robot">
+      <h2><b>01.</b>Wklej link</h2>
+      <input type="url" id="link" placeholder="https://... (artykuł, ustawa, rozporządzenie, komunikat urzędu)">
+      <p class="przyklady">Działa ze stronami WWW i PDF-ami do 50 MB - w tym ustawami z Dziennika Ustaw, ISAP i drukami sejmowymi (orka.sejm.gov.pl).</p>
+      <div class="akcje">
+        <button id="analizuj">Przeczytaj za mnie →</button>
+        <span id="status"></span>
+      </div>
+      <p class="licznik" id="licznik"></p>
+    </section>
+
+    <section class="wynik" id="wynik">
+      <div class="sekcja-w"><h3><b>02.</b>Co to jest</h3><p class="tytul-w" id="w-tytul"></p><p class="meta-w" id="w-meta"></p><p style="margin-top:12px" id="w-streszczenie"></p></div>
+      <div class="sekcja-w zielona"><h3><b>03.</b>Najważniejsze punkty</h3><ul id="w-punkty"></ul></div>
+      <div class="sekcja-w"><h3><b>04.</b>Co to znaczy dla Ciebie</h3><p id="w-dlaciebie"></p><p style="margin-top:10px; font-weight:700" id="w-daty"></p></div>
+      <div class="sekcja-w" id="w-slownik-box"><h3><b>05.</b>Słowniczek</h3><dl id="w-slownik"></dl></div>
+      <div class="sekcja-w" id="w-uwagi-box" style="display:none"><h3><b>06.</b>Uwagi</h3><p id="w-uwagi"></p></div>
+    </section>
+  </main>
+
+  <aside class="panel-boczny">
+    <div class="brand">Czyto<br>mat</div>
+    <div class="kostki"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <p class="claim">USTAWA ALBO ARTYKUŁ NA LUDZKI JĘZYK</p>
+    <p class="opis">Wklejasz link, dostajesz po polsku: streszczenie, najważniejsze punkty, co to znaczy dla Ciebie i słowniczek trudnych pojęć. Czyta też PDF-y z Dziennika Ustaw. Za darmo, bez konta, do 10 analiz dziennie.</p>
+    <p class="zrodlo"><b>To nie jest porada prawna</b> - to wyjaśnienie treści. Analiza opiera się wyłącznie na tym, co jest pod linkiem - zawsze możesz zajrzeć do oryginału.<br><br><b>Prywatność:</b> nie zapisujemy ani linków, ani treści - analizujemy i zapominamy.</p>
+  </aside>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+$("analizuj").addEventListener("click", async () => {
+  const url = $("link").value.trim();
+  $("wynik").style.display = "none";
+  $("status").textContent = "> pobieram i czytam (duże PDF-y nawet 1-2 minuty)...";
+  $("analizuj").disabled = true;
+  try {
+    const res = await fetch("/api/analiza", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ url }),
+    });
+    const d = await res.json();
+    if (d.error) { $("status").textContent = "> " + d.error; return; }
+    $("status").textContent = "";
+    $("w-tytul").textContent = d.tytul;
+    $("w-meta").textContent = `${d.rodzaj_tresci} · źródło: ${d.zrodlo}`;
+    $("w-streszczenie").textContent = d.streszczenie;
+    $("w-punkty").innerHTML = (d.najwazniejsze_punkty || []).map(p => `<li>${p}</li>`).join("");
+    $("w-dlaciebie").textContent = d.co_to_znaczy_dla_ciebie;
+    $("w-daty").textContent = d.daty_i_terminy && d.daty_i_terminy !== "-" ? "Daty i terminy: " + d.daty_i_terminy : "";
+    const sl = d.slowniczek || [];
+    $("w-slownik-box").style.display = sl.length ? "block" : "none";
+    $("w-slownik").innerHTML = sl.map(s => `<dt>${s.termin}</dt><dd>${s.wyjasnienie}</dd>`).join("");
+    if (d.uwagi && d.uwagi !== "-") { $("w-uwagi").textContent = d.uwagi; $("w-uwagi-box").style.display = "block"; }
+    else { $("w-uwagi-box").style.display = "none"; }
+    $("licznik").textContent = `pozostało dziś: ${d.pozostalo_dzis} z 10 analiz`;
+    $("wynik").style.display = "block";
+    $("wynik").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch {
+    $("status").textContent = "> błąd połączenia - spróbuj ponownie.";
+  } finally {
+    $("analizuj").disabled = false;
+  }
+});
+$("link").addEventListener("keydown", (e) => { if (e.key === "Enter") $("analizuj").click(); });
+</script>
+</body>
+</html>

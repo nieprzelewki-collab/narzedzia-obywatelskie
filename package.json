@@ -1,0 +1,26 @@
+{
+  "name": "np-civic-tools",
+  "version": "0.1.0",
+  "description": "CLI i governance dla wspólnego rozwoju Narzędzi Obywatelskich.",
+  "type": "module",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/nieprzelewki-collab/narzedzia-obywatelskie.git"
+  },
+  "bin": {
+    "np-civic": "./scripts/np_civic.mjs"
+  },
+  "scripts": {
+    "np-civic": "node scripts/np_civic.mjs",
+    "validate": "node scripts/governance_check.mjs",
+    "test": "node scripts/test_e2e.mjs",
+    "check": "node --check scripts/governance_check.mjs && node --check scripts/np_civic.mjs && node scripts/governance_check.mjs"
+  },
+  "keywords": [
+    "civic-tech",
+    "ai-agents",
+    "governance",
+    "codex-skill"
+  ],
+  "license": "MIT"
+}

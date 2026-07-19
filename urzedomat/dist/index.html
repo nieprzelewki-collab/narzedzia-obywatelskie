@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="pl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Urzędomat - pismo z urzędu na ludzki język</title>
+<meta name="description" content="Wklej pismo z ZUS, urzędu skarbowego, sądu lub gminy - dostaniesz po ludzku: co to znaczy, co zrobić, do kiedy, plus szkic odpowiedzi. Za darmo.">
+<link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>📄</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --ink:#16181a; --steel-1:#e8eaec; --steel-2:#b9bec3; --panel:#0b0c0d; --panel-ink:#e9ecee;
+    --acid:#a4d426; --acid-dark:#5d8f22; --line:#c7ccd1; --mono:"Space Mono",monospace; --disp:"Anton",sans-serif;
+  }
+  * { box-sizing:border-box; margin:0; }
+  .rodzina { display:flex; gap:18px; align-items:center; padding:10px 4vw; background:#000; font-family:var(--mono); font-size:.75rem; letter-spacing:.1em; overflow-x:auto; white-space:nowrap; }
+  .rodzina a { color:#8a9199; text-decoration:none; }
+  .rodzina a:hover { color:var(--acid); }
+  .rodzina a.tu { color:var(--acid); font-weight:700; }
+  .rodzina .dom { color:#e9ecee; font-weight:700; }
+
+  body { font-family:var(--mono); color:var(--ink); background:var(--panel); min-height:100vh; }
+
+  .uklad { display:grid; grid-template-columns:1fr 360px; min-height:100vh; }
+  .pole { padding:6vh 4vw 8vh; }
+
+  .robot { background:var(--steel-1); border:1px solid #000; box-shadow:0 16px 50px rgba(0,0,0,.5); padding:26px; max-width:760px; }
+  .robot h2 { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:1.6rem; letter-spacing:.03em; border-bottom:2px solid var(--ink); padding-bottom:10px; margin-bottom:14px; }
+  .robot h2 b { color:var(--acid-dark); margin-right:10px; font-family:var(--mono); font-size:1rem; vertical-align:middle; }
+  textarea { width:100%; min-height:260px; padding:14px; font-family:var(--mono); font-size:.92rem; line-height:1.6; border:1px solid var(--line); background:#fff; resize:vertical; }
+  textarea:focus { outline:2px solid var(--acid); outline-offset:-1px; }
+  .akcje { display:flex; gap:12px; margin-top:14px; align-items:center; flex-wrap:wrap; }
+  button { font-family:var(--mono); background:var(--panel); color:var(--acid); border:0; padding:15px 26px; font-size:.95rem; font-weight:700; letter-spacing:.08em; text-transform:uppercase; cursor:pointer; }
+  button:hover { background:var(--acid); color:var(--panel); }
+  button:disabled { opacity:.5; cursor:wait; }
+  #status { font-size:.85rem; color:#3b4045; }
+
+  .wynik { max-width:760px; margin-top:22px; display:none; }
+  .sekcja-w { background:var(--steel-1); border:1px solid #000; padding:20px 22px; margin-bottom:14px; box-shadow:0 10px 34px rgba(0,0,0,.4); }
+  .sekcja-w.zielona { background:var(--acid); }
+  .sekcja-w h3 { font-size:.8rem; font-weight:700; letter-spacing:.14em; text-transform:uppercase; margin-bottom:10px; }
+  .sekcja-w h3 b { color:var(--acid-dark); margin-right:8px; }
+  .sekcja-w.zielona h3 b { color:#101400; }
+  .sekcja-w p, .sekcja-w li { font-size:.95rem; line-height:1.65; }
+  .sekcja-w ol { padding-left:22px; display:grid; gap:6px; }
+  .termin { font-family:var(--disp); font-weight:400; font-size:1.7rem; letter-spacing:.02em; }
+  pre { white-space:pre-wrap; font-family:var(--mono); font-size:.88rem; line-height:1.65; background:#fff; border:1px solid var(--line); padding:16px; }
+  .kopiuj { margin-top:10px; padding:10px 18px; font-size:.8rem; }
+  .licznik { font-size:.75rem; color:#6b7176; margin-top:6px; }
+
+  .panel-boczny { background:var(--steel-1); padding:44px 32px 40px; display:flex; flex-direction:column; gap:24px; border-left:1px solid #000; }
+  .panel-boczny .brand { font-family:var(--disp); font-weight:400; text-transform:uppercase; font-size:clamp(2.2rem,2.8vw,3rem); line-height:1.05; }
+  .panel-boczny .kostki { display:flex; gap:5px; }
+  .panel-boczny .kostki span { width:10px; height:10px; background:#c7ccd1; }
+  .panel-boczny .kostki span:nth-child(2) { background:var(--acid-dark); }
+  .panel-boczny .claim { font-size:1.1rem; font-weight:700; line-height:1.55; }
+  .panel-boczny .opis { font-size:.88rem; line-height:1.7; color:#3b4045; }
+  .panel-boczny .spis { font-size:.85rem; line-height:2; }
+  .panel-boczny .spis b { color:var(--acid-dark); }
+  .panel-boczny .spis a { color:inherit; }
+  .panel-boczny .zrodlo { font-size:.72rem; color:#6b7176; line-height:1.6; margin-top:auto; }
+
+  @media (max-width:900px) {
+    .uklad { display:flex; flex-direction:column; }
+    .panel-boczny { order:-1; border-left:0; border-bottom:1px solid #000; padding:32px 6vw; }
+    .pole { padding:36px 6vw 56px; }
+  }
+</style>
+</head>
+<body>
+<nav class="rodzina"><a class="dom" href="https://narzedzia-obywatelskie.pages.dev/">NARZĘDZIA OBYWATELSKIE</a><a href="https://kolejkomat.pages.dev/">01 KOLEJKOMAT</a><a class="tu" href="https://urzedomat.pages.dev/">02 URZĘDOMAT</a><a href="https://czytomat.pages.dev/">03 CZYTOMAT</a></nav>
+<div class="uklad">
+  <main class="pole">
+    <section class="robot">
+      <h2><b>01.</b>Wklej treść pisma</h2>
+      <textarea id="tekst" placeholder="Wklej tutaj pełną treść pisma z ZUS, urzędu skarbowego, sądu, gminy, komornika...&#10;&#10;Wskazówka: jeśli masz pismo na papierze, zrób zdjęcie i użyj funkcji 'zaznacz tekst' w telefonie, potem wklej tutaj."></textarea>
+      <div class="akcje">
+        <button id="analizuj">Przetłumacz na ludzki →</button>
+        <span id="status"></span>
+      </div>
+      <p class="licznik" id="licznik"></p>
+    </section>
+
+    <section class="wynik" id="wynik">
+      <div class="sekcja-w"><h3><b>02.</b>Co to znaczy</h3><p id="w-znaczy"></p><p id="w-rodzaj" style="margin-top:8px; font-size:.8rem; color:#6b7176"></p></div>
+      <div class="sekcja-w zielona"><h3><b>03.</b>Co musisz zrobić</h3><ol id="w-kroki"></ol></div>
+      <div class="sekcja-w"><h3><b>04.</b>Do kiedy</h3><p class="termin" id="w-termin"></p><p id="w-konsekwencje" style="margin-top:10px"></p></div>
+      <div class="sekcja-w"><h3><b>05.</b>Szkic odpowiedzi</h3><pre id="w-szkic"></pre><button class="kopiuj" id="kopiuj">Kopiuj szkic</button></div>
+      <div class="sekcja-w" id="w-uwagi-box" style="display:none"><h3><b>06.</b>Uwagi</h3><p id="w-uwagi"></p></div>
+    </section>
+  </main>
+
+  <aside class="panel-boczny">
+    <div class="brand">Urzędo<br>mat</div>
+    <div class="kostki"><span></span><span></span><span></span><span></span><span></span><span></span></div>
+    <p class="claim">PISMO Z URZĘDU NA LUDZKI JĘZYK</p>
+    <p class="opis">Wklejasz treść pisma, dostajesz po polsku: co to znaczy, co musisz zrobić, do kiedy - i gotowy szkic odpowiedzi. Za darmo, bez konta, do 10 pism dziennie.</p>
+    <div class="spis">
+      <div><b>01.</b> <a href="https://kolejkomat.pages.dev/">KOLEJKOMAT - terminy NFZ</a></div>
+      <div><b>02.</b> URZĘDOMAT - jesteś tutaj</div>
+      <div><b>03.</b> <a href="https://czytomat.pages.dev/">CZYTOMAT - ustawy i artykuły po ludzku</a></div>
+      <div style="margin-top:6px"><a href="https://narzedzia-obywatelskie.pages.dev/">← NARZĘDZIA OBYWATELSKIE</a></div>
+    </div>
+    <p class="zrodlo"><b>To nie jest porada prawna</b> - to wyjaśnienie treści pisma. Przy dużych kwotach i sprawach sądowych skonsultuj się z prawnikiem (bezpłatnie: darmowa pomoc prawna w Twoim powiecie).<br><br><b>Prywatność:</b> treść pisma NIE jest nigdzie zapisywana ani logowana - analizujemy i zapominamy. Zanim wkleisz, możesz usunąć z pisma PESEL i adres - analiza zadziała tak samo.</p>
+  </aside>
+</div>
+
+<script>
+const $ = (id) => document.getElementById(id);
+
+$("analizuj").addEventListener("click", async () => {
+  const tekst = $("tekst").value.trim();
+  $("wynik").style.display = "none";
+  $("status").textContent = "> analizuję (kilkanaście sekund)...";
+  $("analizuj").disabled = true;
+  try {
+    const res = await fetch("/api/analiza", {
+      method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ tekst }),
+    });
+    const d = await res.json();
+    if (d.error) { $("status").textContent = "> " + d.error; return; }
+    $("status").textContent = "";
+    $("w-znaczy").textContent = d.co_to_znaczy;
+    $("w-rodzaj").textContent = d.czy_pismo_urzedowe ? `rodzaj: ${d.rodzaj_pisma} · nadawca: ${d.nadawca}` : "";
+    $("w-kroki").innerHTML = (d.co_musisz_zrobic || []).map(k => `<li>${k}</li>`).join("");
+    $("w-termin").textContent = d.do_kiedy;
+    $("w-konsekwencje").textContent = d.konsekwencje_bezczynnosci;
+    $("w-szkic").textContent = d.szkic_odpowiedzi;
+    if (d.uwagi && d.uwagi !== "-") { $("w-uwagi").textContent = d.uwagi; $("w-uwagi-box").style.display = "block"; }
+    else { $("w-uwagi-box").style.display = "none"; }
+    $("licznik").textContent = `pozostało dziś: ${d.pozostalo_dzis} z 10 analiz`;
+    $("wynik").style.display = "block";
+    $("wynik").scrollIntoView({ behavior: "smooth", block: "start" });
+  } catch {
+    $("status").textContent = "> błąd połączenia - spróbuj ponownie.";
+  } finally {
+    $("analizuj").disabled = false;
+  }
+});
+
+$("kopiuj").addEventListener("click", async () => {
+  await navigator.clipboard.writeText($("w-szkic").textContent);
+  $("kopiuj").textContent = "Skopiowano ✓";
+  setTimeout(() => $("kopiuj").textContent = "Kopiuj szkic", 2000);
+});
+</script>
+</body>
+</html>

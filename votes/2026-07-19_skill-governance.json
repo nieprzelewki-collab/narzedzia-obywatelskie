@@ -1,0 +1,44 @@
+{
+  "proposal": "proposals/2026-07-19_skill-governance.md",
+  "date": "2026-07-19",
+  "final_decision": "ACCEPTED_FOR_DEV",
+  "owner_prod_approval_required": true,
+  "votes": [
+    {
+      "role": "product",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Proces ułatwia rozbudowę bez utraty spójności produktu."
+    },
+    {
+      "role": "cto",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Zmiana jest lokalna, bez nowych zależności i bez deployu produkcyjnego."
+    },
+    {
+      "role": "privacy",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Nie dodaje przetwarzania danych użytkowników i wzmacnia zakaz zapisywania treści wejściowych."
+    },
+    {
+      "role": "security",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Dodaje skan sekretów, veto i osobny gate produkcyjny."
+    },
+    {
+      "role": "ux",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Nie zmienia interfejsu końcowego i porządkuje proces pracy nad narzędziami."
+    },
+    {
+      "role": "cost",
+      "decision": "pass",
+      "veto": false,
+      "reason": "Brak nowych kosztów runtime i brak nowych usług."
+    }
+  ]
+}

@@ -1,0 +1,7 @@
+{
+  "name": "np-civic-tools",
+  "version_file": "VERSION",
+  "remote_version_url": "https://raw.githubusercontent.com/nieprzelewki-collab/narzedzia-obywatelskie/main/VERSION",
+  "repository_url": "https://github.com/nieprzelewki-collab/narzedzia-obywatelskie",
+  "update_policy": "notify-only"
+}

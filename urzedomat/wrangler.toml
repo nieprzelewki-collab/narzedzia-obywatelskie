@@ -1,0 +1,11 @@
+name = "urzedomat"
+pages_build_output_dir = "dist"
+compatibility_date = "2026-07-01"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kolejkomat-db"
+database_id = "7a72dd65-38d2-41d4-a1d5-e77b72f5b01d"   # wspolna D1 rodziny (tabela uzycia_urzedomat)
+
+# SEKRET (wrangler pages secret put, NIGDY w pliku): GEMINI_API_KEY
+# Deploy produkcyjny: npx wrangler pages deploy --branch main

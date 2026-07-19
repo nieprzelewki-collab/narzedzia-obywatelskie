@@ -1,0 +1,24 @@
+name = "kolejkomat"
+main = "src/index.js"
+compatibility_date = "2026-07-01"
+
+[assets]
+directory = "static"
+binding = "ASSETS"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "kolejkomat-db"
+database_id = "7a72dd65-38d2-41d4-a1d5-e77b72f5b01d"   # utworzona 19.07.2026, region EEUR
+
+[triggers]
+crons = ["0 6 * * *"]   # raz dziennie 06:00 UTC - dane NFZ i tak zmieniaja sie ~miesiecznie
+
+[vars]
+PUBLIC_URL = "https://kolejkomat.pages.dev"   # kanoniczny adres (Pages); podmienic przy wlasnej domenie
+REDIRECT_TO_PAGES = "1"                        # workers.dev -> 301 na Pages (frontend+API serwuje Pages)
+MAILGUN_DOMAIN = ""                            # np. mg.twojadomena.pl
+MAIL_FROM = "Kolejkomat <alert@example.pl>"
+
+# SEKRETY (NIGDY w tym pliku - wrangler secret put):
+#   MAILGUN_API_KEY
