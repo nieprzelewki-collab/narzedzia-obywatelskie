@@ -131,9 +131,16 @@
   .gsl-head .naglowek h2 { color:var(--panel-ink); }
   .gsl-head p { font-size:.92rem; line-height:1.7; color:#aeb6bc; }
   .gsl-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; }
-  .gsl-card { display:flex; flex-direction:column; min-height:210px; padding:18px; background:#15181a; color:var(--panel-ink); border:1px solid #30363b; border-top:4px solid var(--acid); text-decoration:none; transition:transform .18s, border-color .18s, background .18s; }
+  .gsl-card { display:flex; flex-direction:column; min-height:250px; padding:18px; background:#15181a; color:var(--panel-ink); border:1px solid #30363b; border-top:4px solid var(--acid); text-decoration:none; transition:transform .18s, border-color .18s, background .18s; overflow:hidden; }
   .gsl-card:hover { transform:translateY(-3px); border-color:var(--acid); background:#1d2216; }
   .gsl-card .num { font-size:.8rem; color:var(--acid); font-weight:700; margin-bottom:12px; }
+  .gsl-card .mini-fig { height:86px; margin:0 -18px 14px; border-top:1px solid #30363b; border-bottom:1px solid #30363b; background-image:linear-gradient(rgba(164,212,38,.34),rgba(164,212,38,.16)),url("/img/hero_wide.png"); background-size:260%; background-repeat:no-repeat; filter:grayscale(1) contrast(1.25); mix-blend-mode:screen; opacity:.78; }
+  .gsl-card:nth-child(1) .mini-fig { background-position:12% 54%; }
+  .gsl-card:nth-child(2) .mini-fig { background-position:34% 22%; }
+  .gsl-card:nth-child(3) .mini-fig { background-position:58% 42%; }
+  .gsl-card:nth-child(4) .mini-fig { background-position:78% 28%; }
+  .gsl-card:nth-child(5) .mini-fig { background-position:26% 72%; }
+  .gsl-card:nth-child(6) .mini-fig { background-position:66% 70%; }
   .gsl-card h3 { font-size:1.05rem; line-height:1.35; letter-spacing:.02em; margin-bottom:10px; }
   .gsl-card p { font-size:.82rem; line-height:1.55; color:#c3c9ce; }
   .gsl-card .go { margin-top:auto; padding-top:16px; font-size:.75rem; color:var(--acid); font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
@@ -276,36 +283,42 @@
     <div class="gsl-grid reveal">
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/SOR" target="_blank" rel="noopener">
         <span class="num">GSL 01</span>
+        <div class="mini-fig" aria-hidden="true"></div>
         <h3>Szpitalny Oddział Ratunkowy</h3>
         <p>Gdy sprawa jest nagła i wymaga pomocy szpitalnej.</p>
         <span class="go">Otwórz w GSL</span>
       </a>
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/PomocNocna" target="_blank" rel="noopener">
         <span class="num">GSL 02</span>
+        <div class="mini-fig" aria-hidden="true"></div>
         <h3>Nocna i świąteczna pomoc POZ</h3>
         <p>Wieczorem, w nocy, w weekend albo święto, gdy POZ nie pracuje.</p>
         <span class="go">Otwórz w GSL</span>
       </a>
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/IzbaPrzyjec" target="_blank" rel="noopener">
         <span class="num">GSL 03</span>
+        <div class="mini-fig" aria-hidden="true"></div>
         <h3>Izby przyjęć</h3>
         <p>Miejsca przy szpitalach udzielające pomocy w trybie przyjęcia.</p>
         <span class="go">Otwórz w GSL</span>
       </a>
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/LeczenieStomatologiczneDorazne" target="_blank" rel="noopener">
         <span class="num">GSL 04</span>
+        <div class="mini-fig" aria-hidden="true"></div>
         <h3>Pomoc stomatologiczna doraźna</h3>
         <p>Gdy chodzi o nagły problem stomatologiczny finansowany przez NFZ.</p>
         <span class="go">Otwórz w GSL</span>
       </a>
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/POZ" target="_blank" rel="noopener">
         <span class="num">GSL 05</span>
+        <div class="mini-fig" aria-hidden="true"></div>
         <h3>Lekarz, pielęgniarka i położna POZ</h3>
         <p>Podstawowa opieka zdrowotna: gabinet lekarza POZ, pielęgniarki lub położnej.</p>
         <span class="go">Otwórz w GSL</span>
       </a>
       <a class="gsl-card" href="https://gsl.nfz.gov.pl/GSL/GSL/ProgramyProfilaktyczne" target="_blank" rel="noopener">
         <span class="num">GSL 06</span>
+        <div class="mini-fig" aria-hidden="true"></div>
         <h3>Programy profilaktyczne</h3>
         <p>Badania i programy profilaktyczne realizowane w ramach NFZ.</p>
         <span class="go">Otwórz w GSL</span>
