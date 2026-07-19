@@ -1,5 +1,14 @@
 # CHANGELOG - Narzędzia Obywatelskie
 
+## [2026-07-19] Deploy PROD Kolejkomatu: GSL API layer
+
+- Produkcyjny deploy Pages `kolejkomat`, commit `8597300`.
+- Deployment Cloudflare: `https://f4f688a5.kolejkomat.pages.dev`, środowisko Production, branch `main`.
+- Kanoniczny URL: `https://kolejkomat.pages.dev`.
+- Dodane endpointy `/api/gsl/kategorie`, `/api/gsl/route`, `/api/gsl/link` oraz panel dopasowania kategorii w sekcji `Pomoc teraz`.
+- Weryfikacja po deployu: `curl -I https://kolejkomat.pages.dev/` = HTTP 200 `text/html; charset=utf-8`; `curl https://kolejkomat.pages.dev/api/gsl/route?q=SOR` = HTTP 200 `application/json`.
+- Brak nowych sekretów i brak proxy/scrapowania wyników GSL.
+
 ## [2026-07-19] Kolejkomat: moduł GSL "Pomoc teraz"
 
 - Dodana sekcja `Pomoc teraz` w Kolejkomacie z linkami do oficjalnych kategorii GSL NFZ: SOR, nocna i świąteczna pomoc POZ, izby przyjęć, pomoc stomatologiczna doraźna, POZ i programy profilaktyczne.
